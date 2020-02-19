@@ -215,9 +215,13 @@ func (hlsDl *HlsDl) join(dir string, segments []*Segment) (string, error) {
 	if out, err := ts.CombinedOutput(); err != nil {
 		log.Printf("convert to mp4 failed, err: %s, out: %s\n", err.Error(), string(out))
 	} else {
+		// remove video.ts
+		if err := os.Remove(tspath); err != nil {
+			log.Println("faild to remove " + tspath)
+		}
 		log.Println("convert to mp4 successfully")
 	}
-	return tspath, nil
+	return mp4path, nil
 }
 
 func (hlsDl *HlsDl) Download() (string, error) {
