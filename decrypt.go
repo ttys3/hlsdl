@@ -18,19 +18,22 @@ func (hlsDl *HlsDl) Decrypt(segment *Segment) ([]byte, error) {
 	}
 	defer file.Close()
 
-	data, err := ioutil.ReadAll(file)
+	var data []byte
+	data, err = ioutil.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
 
 	if segment.Key != nil {
-		key, iv, err := hlsDl.GetKey(segment)
-		if err != nil {
+		if key, iv, err := hlsDl.GetKey(segment); err != nil {
 			return nil, err
+		} else {
+			log.Println("Descrypting", len(key), len(iv))
+			data, err = AES128Decrypt(data, key, iv)
+			if err != nil {
+				return nil, err
+			}
 		}
-
-		log.Println("Descrypting", len(key), len(iv))
-		data, err = AES128Decrypt(data, key, iv)
 	}
 
 	syncByte := uint8(71) //0x47
