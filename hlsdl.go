@@ -1,12 +1,14 @@
 package hlsdl
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -178,9 +180,9 @@ func (hlsDl *HlsDl) downloadSegments(segments []*Segment) error {
 func (hlsDl *HlsDl) join(dir string, segments []*Segment) (string, error) {
 	fmt.Println("Joining segments")
 
-	filepath := filepath.Join(dir, "video.ts")
+	tspath := filepath.Join(dir, "video.ts")
 
-	file, err := os.Create(filepath)
+	file, err := os.Create(tspath)
 	if err != nil {
 		return "", err
 	}
@@ -206,7 +208,16 @@ func (hlsDl *HlsDl) join(dir string, segments []*Segment) (string, error) {
 		}
 	}
 
-	return filepath, nil
+	mp4path := filepath.Join(dir, "all.mp4")
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second * time.Duration(600)))
+	ts := exec.CommandContext(ctx, "ffmpeg",
+		"-i", tspath, "-c", "copy", "-bsf:a", "aac_adtstoasc", mp4path)
+	if out, err := ts.CombinedOutput(); err != nil {
+		log.Printf("convert to mp4 failed, err: %s, out: %s\n", err.Error(), string(out))
+	} else {
+		log.Println("convert to mp4 successfully")
+	}
+	return tspath, nil
 }
 
 func (hlsDl *HlsDl) Download() (string, error) {
