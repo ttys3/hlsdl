@@ -209,7 +209,8 @@ func (hlsDl *HlsDl) join(dir string, segments []*Segment) (string, error) {
 	}
 
 	mp4path := filepath.Join(dir, "all.mp4")
-	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second * time.Duration(600)))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Second * time.Duration(600)))
+	defer cancel()  // releases resources if exec run completes before timeout elapses, to avoid a context leak
 	ts := exec.CommandContext(ctx, "ffmpeg",
 		"-i", tspath, "-c", "copy", "-bsf:a", "aac_adtstoasc", mp4path)
 	if out, err := ts.CombinedOutput(); err != nil {
