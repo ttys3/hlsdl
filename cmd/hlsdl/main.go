@@ -18,7 +18,7 @@ func main() {
 	cmd.Flags().StringP("url", "u", "", "The manifest (m3u8) url")
 	cmd.Flags().StringP("dir", "d", "./download", "The directory where the file will be stored")
 	cmd.Flags().BoolP("record", "r", false, "Indicate whether the m3u8 is a live stream video and you want to record it")
-	cmd.Flags().IntP("workers", "w", 2, "Number of workers to execute concurrent operations")
+	cmd.Flags().IntP("workers", "w", 10, "Number of workers to execute concurrent operations")
 	cmd.SetArgs(os.Args[1:])
 
 	if err := cmd.Execute(); err != nil {
