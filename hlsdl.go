@@ -48,7 +48,7 @@ func New(hlsURL string, dir string, workers int, enableBar bool) *HlsDl {
 	hlsdl := &HlsDl{
 		hlsURL:    hlsURL,
 		dir:       dir,
-		client:    &http.Client{},
+		client:    &http.Client{Timeout: time.Second * 30},
 		workers:   workers,
 		enableBar: enableBar,
 	}
